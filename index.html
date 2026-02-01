@@ -1,147 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Verification</title>
+<meta charset="UTF-8">
+<title>Secure Verification</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      font-family: 'Pacifico', cursive;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      color: white;
-      text-align: center;
-    }
+<style>
+* { box-sizing: border-box; }
 
-    #container {
-      z-index: 2;
-    }
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  font-family: 'Pacifico', cursive;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: white;
+  text-align: center;
+}
 
-    #verify {
-      font-size: 26px;
-    }
+.screen {
+  display: none;
+  z-index: 2;
+}
 
-    #bar {
-      width: 260px;
-      height: 12px;
-      border: 2px solid white;
-      margin: 20px auto;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+.active {
+  display: block;
+}
 
-    #fill {
-      height: 100%;
-      width: 0%;
-      background: hotpink;
-      transition: width 0.1s;
-    }
+input {
+  padding: 12px;
+  font-size: 22px;
+  border-radius: 20px;
+  border: none;
+  text-align: center;
+}
 
-    #message {
-      display: none;
-      font-size: 32px;
-      text-shadow: 0 0 12px hotpink;
-      margin-bottom: 20px;
-    }
+button {
+  margin: 12px;
+  padding: 14px 28px;
+  font-size: 24px;
+  border-radius: 30px;
+  border: none;
+  background: hotpink;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 20px hotpink;
+}
 
-    button {
-      display: none;
-      background: hotpink;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 30px;
-      font-size: 20px;
-      font-family: 'Pacifico', cursive;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 0 15px hotpink;
-    }
+#bar {
+  width: 300px;
+  height: 14px;
+  border: 2px solid white;
+  margin: 20px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-    .heart {
-      position: absolute;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 20px;
-      animation: float 6s linear infinite;
-    }
+#fill {
+  height: 100%;
+  width: 0%;
+  background: hotpink;
+}
 
-    @keyframes float {
-      0% { transform: translateY(100vh); opacity: 0; }
-      10% { opacity: 1; }
-      100% { transform: translateY(-10vh); opacity: 0; }
-    }
-  </style>
+#message {
+  font-size: 36px;
+  line-height: 1.4;
+  text-shadow: 0 0 15px hotpink;
+}
+
+.heart {
+  position: absolute;
+  font-size: 22px;
+  animation: float 6s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes float {
+  0% { transform: translateY(100vh); }
+  100% { transform: translateY(-10vh); }
+}
+
+.firework {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: explode 1s ease-out forwards;
+}
+
+@keyframes explode {
+  to {
+    transform: translate(var(--x), var(--y));
+    opacity: 0;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div id="container">
-    <div id="verify">
-      🔒 Verifying device…
-      <div id="bar"><div id="fill"></div></div>
-    </div>
 
-    <div id="message"></div>
-    <button id="btn">Will you be mine forever? 💗</button>
-  </div>
+<!-- PASSWORD -->
+<div id="password" class="screen active">
+  <h1>🔐 Security Question</h1>
+  <p style="font-size:28px">How old is Vishy?</p>
+  <input id="passInput" placeholder="Type here">
+  <br><br>
+  <button onclick="checkPass()">Unlock 💗</button>
+  <p id="error"></p>
+</div>
 
-  <script>
-    const herName = "SUCHETHAAAA";
+<!-- VERIFY -->
+<div id="verify" class="screen">
+  <h1>🔒 Verifying…</h1>
+  <div id="bar"><div id="fill"></div></div>
+</div>
 
-    const msg = `Happy One Month Anniversary, ${herName} 💗
-You mean more to me than words can ever explain.
-I choose you. Today. Tomorrow. Always.`;
+<!-- MESSAGE -->
+<div id="main" class="screen">
+  <div id="message"></div>
+  <br>
+  <button onclick="yesClicked()">Yes 💗</button>
+  <button onclick="yesClicked()">Yes obviously 😭💖</button>
+</div>
 
-    let progress = 0;
-    const fill = document.getElementById("fill");
+<script>
+const herName = "SUCHETHAAAA";
 
-    const loader = setInterval(() => {
-      progress += 2;
-      fill.style.width = progress + "%";
-      if (progress >= 100) {
-        clearInterval(loader);
-        setTimeout(showMessage, 800);
-      }
-    }, 50);
+function checkPass() {
+  const val = document.getElementById("passInput").value.toLowerCase().trim();
+  if (val === "17" || val === "seventeen") {
+    switchScreen("verify");
+    startVerify();
+  } else {
+    document.getElementById("error").innerText = "Hmm… try again 😭";
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
 
-    function showMessage() {
-      document.getElementById("verify").style.display = "none";
-      const messageDiv = document.getElementById("message");
-      messageDiv.style.display = "block";
+function switchScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
 
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-
-      let i = 0;
-      const typer = setInterval(() => {
-        messageDiv.innerText += msg[i];
-        i++;
-        if (i >= msg.length) {
-          clearInterval(typer);
-          document.getElementById("btn").style.display = "inline-block";
-        }
-      }, 60);
+function startVerify() {
+  let p = 0;
+  const fill = document.getElementById("fill");
+  const loader = setInterval(() => {
+    p += 2;
+    fill.style.width = p + "%";
+    if (p >= 100) {
+      clearInterval(loader);
+      setTimeout(showMessage, 700);
     }
+  }, 50);
+}
 
-    document.getElementById("btn").onclick = () => {
-      if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
-      alert("I love you endlessly 💖");
-    };
+function showMessage() {
+  switchScreen("main");
+  const text = `Happy One Month Anniversary, ${Suchethaaaaa} 💗
 
-    // Floating hearts
-    setInterval(() => {
-      const heart = document.createElement("div");
-      heart.className = "heart";
-      heart.innerHTML = "💗";
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.fontSize = Math.random() * 20 + 15 + "px";
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 6000);
-    }, 300);
-  </script>
+You make my days brighter,
+my heart calmer,
+and my life better.
+
+I choose you.
+Every single day.`;
+
+  let i = 0;
+  const box = document.getElementById("message");
+  const typer = setInterval(() => {
+    box.innerText += text[i];
+    i++;
+    if (i >= text.length) clearInterval(typer);
+  }, 55);
+}
+
+function yesClicked() {
+  if (navigator.vibrate) navigator.vibrate([300,100,300]);
+  fireworks();
+  alert("Forever sounds perfect with you 💖");
+}
+
+function fireworks() {
+  for (let i = 0; i < 40; i++) {
+    const f = document.createElement("div");
+    f.className = "firework";
+    f.style.left = "50vw";
+    f.style.top = "50vh";
+    f.style.setProperty("--x", (Math.random()*400-200)+"px");
+    f.style.setProperty("--y", (Math.random()*400-200)+"px");
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 1000);
+  }
+}
+
+// hearts
+setInterval(() => {
+  const h = document.createElement("div");
+  h.className = "heart";
+  h.innerText = "💗";
+  h.style.left = Math.random()*100 + "vw";
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 6000);
+}, 300);
+</script>
+
 </body>
 </html>
