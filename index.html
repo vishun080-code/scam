@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,14 +54,11 @@ body {
 }
 
 #text {
-#text {
   font-size: 22px;
   line-height: 1.6;
   min-height: 140px;
-  white-space: pre-line;
+  white-space: pre-line; /* ✅ FIXES SPACING */
 }
-
-
 
 button {
   margin-top: 20px;
@@ -120,22 +116,21 @@ let charIndex = 0;
 const textBox = document.getElementById("text");
 const btn = document.getElementById("nextBtn");
 
-function typeMessage(text, callback) {
-  textBox.innerText = "";
+function typeMessage(text) {
+  textBox.textContent = "";
   charIndex = 0;
   const typer = setInterval(() => {
-    textBox.innerText += text[charIndex];
+    textBox.textContent += text[charIndex]; // ✅ FIXED
     charIndex++;
     if (charIndex >= text.length) {
       clearInterval(typer);
-      callback();
     }
   }, 45);
 }
 
 function showNext() {
   if (msgIndex < messages.length) {
-    typeMessage(messages[msgIndex], () => {});
+    typeMessage(messages[msgIndex]);
     msgIndex++;
   } else {
     showValentine();
@@ -144,7 +139,7 @@ function showNext() {
 
 function showValentine() {
   document.getElementById("title").innerText = "Will you be my Valentine? 💘";
-  textBox.innerText = "";
+  textBox.textContent = "";
   btn.innerText = "Yes 💗";
   btn.onclick = yesClicked;
 
@@ -191,3 +186,4 @@ function fireworks() {
 
 </body>
 </html>
+
